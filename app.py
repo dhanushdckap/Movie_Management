@@ -54,38 +54,32 @@ class MovieDatabaseApp:
 
         return jsonify(user_data)
 
-    def edit_user_data(self):
-        user_email = request.json['email']
-        updateEmail = request.json['updateEmail']
-        updatePassword = request.json['updatePassword']
 
-        update_user_email = {'email': user_email}
+    def edit_user_data(self):
+        get_id = request.json['id']
+        update_email = request.json['update_email']
+        password = request.json['update_password']
+        password_byte = password.encode('utf-8')
+        encryt_password = hashlib.sha256(password_byte).hexdigest()
+
+        update_user_id = {'_id': ObjectId(get_id)}
         update_user = {
             '$set': {
-                'email': updateEmail,
-                'password': updatePassword
+                'email': update_email,
+                'password': encryt_password
             }
         }
-        self.user_collection.update_one(update_user_email, update_user)
+        self.user_collection.update_one(update_user_id, update_user)
 
         return "Profile has been updated"
 
     def delete_user_data(self):
-        user_given_id = request.json['id']
-        database_users_data = self.user_collection.find()
-        user_data = []
-        for user in database_users_data:
-
-            # converting the id into string.
-            user_id = user['_id']
-            user_id_str = str(user_id)
-            user_data.append(user_id_str)
-
-        # if user_given_id in user_data:
-        #     return 
+        get_id = request.json['id']
+        self.user_collection.delete_one({"_id":ObjectId(get_id)})
+        return "profile has succesfully deleted"
 
 
-        # return "Profile has been successfully deleted"
+
 
     def login_info(self):
         email = request.json['email']
